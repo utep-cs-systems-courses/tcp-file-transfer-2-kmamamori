@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import sys, os, re
+import sys, os, re, socket
 sys.path.append("../lib")
 import params
 
@@ -12,14 +12,14 @@ switchesVarDefaults = (
 
 
 progname = "echosever"
-paramMap = params.parseParams(switchesVArdefaults)
+paramMap = params.parseParams(switchesVarDefaults)
 
 debug, listenPort = paramMap['debug'], paramMap['listenPort']
 
 if paramMap['usage']:
     params.usage()
 
-lsock = socket(socket.AF_INET, socket.SOCK_STREAM)
+lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 bindAddr = ('127.0.0.1', listenPort)
 lsock.listen(5)
 print('listening on:', bindAddr)

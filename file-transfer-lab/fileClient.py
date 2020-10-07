@@ -2,8 +2,7 @@
 import socket, sys, re
 sys.path.append("../lib")
 import params
-
-from frameSock import frameSend, framedReceive
+from framedSock import framedSend, framedReceive
 
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
@@ -30,7 +29,7 @@ addrFamily = socket.AF_INET
 socktype = socket.SOCK_STREAM
 addrPort = (serverHost, serverPort)
 
-s.socket.socket(addrFamily, socktype)
+s = socket.socket(addrFamily, socktype)
 
 if s is None:
     print('could not open socket')
@@ -67,4 +66,5 @@ if exists(sendingFile):
 else:
     print("file not found.")
     sys.exit(0)
-    s.close()
+
+s.close()
