@@ -2,7 +2,9 @@
 import socket, sys, re
 sys.path.append("../lib")
 import params
+sys.path.append("../framed-echo")
 from framedSock import framedSend, framedReceive
+from os.path import exists
 
 switchesVarDefaults = (
     (('-s', '--server'), 'server', "127.0.0.1:50001"),
@@ -37,32 +39,45 @@ if s is None:
 
 s.connect(addrPort)
 
-sendingFile = input("Enter the file name")
-if exists(sendingFile):
-    cp_file = open(sendingFile, 'r')
+file_to_send = input("Enter the file name: ")
+if exists(file_to_send):
+    cp_file = open(file_to_send, 'rb')
     data_file = cp_file.read()
+    cp_file.close()
     if len(data_file)==0:
         print("Empty file")
         sys.exit(0)
     else:
-        framedSend(s, sendingFile.encode(), debug)
+        print("File found.\n")
+        file_name = input("give us file name: ")
+        framedSend(s,file_name.encode(), debug)
+        fileExistance = framedReceive(s, debug)
+        fileExistance = fileExistance.decode()
+
+        """
         try:
+            framedSend(s, file_name.encode(), debug)
             fileExistance = framedReceive(s, debug)
             fileExistance = fileExistance.decode()
         except:
             print("Connection has being disconnected")
-        if fileExistance == True:
+            """
+        if fileExistance == 'True':
             print("File already exist in the server")
             sys.exit(0)
         else:
             try:
-                framedSend(s, data_file, True)
+                print("try sending")
+                framedSend(s, data_file, debug)
             except:
-                print("Error: check your conection status")
+                print("Sending Error: check your conection status")
+                sys.exit(0)
             try:
-                framedReceive(s, True)
+                print("try receive")
+                framedReceive(s, debug)
             except:
-                print('Error: check your connection status')
+                print('Receiving Error: check your connection status')
+                sys.exit(0)
 else:
     print("file not found.")
     sys.exit(0)

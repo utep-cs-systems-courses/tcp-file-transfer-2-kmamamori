@@ -3,6 +3,8 @@
 import sys, os, re, socket
 sys.path.append("../lib")
 import params
+from framedSock import framedSend, framedReceive
+from os.path import exists
 
 switchesVarDefaults = (
     (('-l', '--listenPort') ,'listenPort', 50001),
@@ -20,15 +22,17 @@ if paramMap['usage']:
     params.usage()
 
 lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-bindAddr = ('127.0.0.1', listenPort)
+bindAddr = ("127.0.0.1", listenPort)
+lsock.bind(bindAddr)
 lsock.listen(5)
-print('listening on:', bindAddr)
+print("listening on:", bindAddr)
+
 
 while True:
     sock, addr = lsock.accept()
     print("connection rec'd from", addr)
     if not os.fork():
-        while Ture:
+        while True:
             payload = framedReceive(sock, debug)
             if not payload:
                 break
@@ -37,20 +41,21 @@ while True:
             if exists(payload):
                 framedSend(sock, b"True", debug)
             else:
-                frameSend(sock, b"False", True)
+                framedSend(sock, b"False", debug)
                 try:
-                    payload2 = frameReceive(sock, debug)
+                    payload2 = framedReceive(sock, debug)
                 except:
                     print("Connection has being disconnected.")
                     sys.exit(1)
                 if not payload2:
                     break
-                payload += b"!"
+                payload2 += b"!"
                 try:
-                    frameSend(sock, payload, debug)
+                    framedSend(sock, payload2, debug)
                 except:
                     print("Connection has being disconnected")
                     sys.exit(1)
                 output = open(payload, 'wb')
                 output.write(payload2)
-                sock.close()
+                output.close()
+        sock.close()
